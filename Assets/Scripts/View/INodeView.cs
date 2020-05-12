@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace View
+﻿namespace View
 {
     public interface INodeView
     {
@@ -13,5 +9,7 @@ namespace View
         void ToggleHint(bool enable);
 
         void SetInteractable(bool value);
+
+        void ToggleSelect(bool value);
     }
 }

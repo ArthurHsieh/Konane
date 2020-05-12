@@ -1,6 +1,4 @@
-﻿using Controller;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using View;
@@ -15,6 +13,7 @@ public class ChessboardView : MonoBehaviour, IChessboardView
     NodeView m_ChessboardNodeView;
 
     List<NodeView> mNodes = new List<NodeView>();
+    NodeView mSelectNode = null;
 
     public void ShowCheckerboard(Model.Chessboard checkerboardData, Controller.IChessboardNodeListener listener)
     {
@@ -71,5 +70,18 @@ public class ChessboardView : MonoBehaviour, IChessboardView
         {
             mNodes[i].ToggleHint(hintNodes != null ? hintNodes.Contains(i) : false);
         }
+    }
+
+    public void SetNodeSelect(int index)
+    {
+        ClearSelect();
+        mSelectNode = mNodes[index];
+        mSelectNode?.ToggleSelect(true);
+    }
+
+    public void ClearSelect()
+    {
+        mSelectNode?.ToggleSelect(false);
+        mSelectNode = null;
     }
 }

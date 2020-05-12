@@ -13,6 +13,17 @@ namespace Model
             {
                 Nodes[i] = new Node(i, boardSize);
             }
+            for (int i = 0; i < Nodes.Length; ++i)
+            {
+                if (Nodes[i].X != 0)
+                    Nodes[i].LeftNode = Nodes[i - 1];
+                if (Nodes[i].X != boardSize - 1)
+                    Nodes[i].RightNode = Nodes[i + 1];
+                if (Nodes[i].Y != 0)
+                    Nodes[i].UpNode = Nodes[i - boardSize];
+                if (Nodes[i].Y != boardSize - 1)
+                    Nodes[i].DownNode = Nodes[i + boardSize];
+            }
             BoardSize = boardSize;
         }
 

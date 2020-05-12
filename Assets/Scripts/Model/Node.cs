@@ -1,9 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
 
 namespace Model
 {
+    [Flags]
+    public enum NeighborFlags
+    {
+        None = 0,
+        Right = 1,
+        Left = 2,
+        Up = 4,
+        Down = 8,
+    }
+
     public class Node
     {
         public Node(int index, int boardSize)
@@ -11,26 +19,6 @@ namespace Model
             Index = index;
             X = index % boardSize;
             Y = index / boardSize;
-
-            if (X != boardSize - 1)
-                RightIndex = Index + 1;
-            else
-                RightIndex = -1;
-
-            if(X != 0)
-                LeftIndex = Index - 1;
-            else
-                LeftIndex = -1;
-
-            if (Y != 0)
-                UpIndex = Index - boardSize;
-            else
-                UpIndex = -1;
-
-            if (Y != boardSize - 1)
-                DownIndex = Index + boardSize;
-            else
-                DownIndex = -1;
         }
 
         public int Index { get; }
@@ -38,9 +26,27 @@ namespace Model
         public int Y { get; }
         public bool IsWhite => (X + Y) % 2 != 0;
         public bool IsVacancy;
-        public int RightIndex { get; }
-        public int LeftIndex { get; }
-        public int UpIndex { get; }
-        public int DownIndex { get; }
+        public NeighborFlags NeighborFlags
+        {
+            get
+            {
+                NeighborFlags value = NeighborFlags.None;
+                if (RightNode != null && !RightNode.IsVacancy)
+                    value |= NeighborFlags.Right;
+                if (LeftNode != null && !LeftNode.IsVacancy)
+                    value |= NeighborFlags.Left;
+                if (UpNode != null && !UpNode.IsVacancy)
+                    value |= NeighborFlags.Up;
+                if (DownNode != null && !DownNode.IsVacancy)
+                    value |= NeighborFlags.Down;
+                return value;
+            }
+        }
+        public Node RightNode = null;
+        public Node LeftNode = null;
+        public Node UpNode = null;
+        public Node DownNode = null;
+
+
     }
 }

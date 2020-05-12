@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using View;
 
-public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
+public class NodeView : MonoBehaviour, INodeView, ISelectHandler, IDeselectHandler
 {
     [SerializeField]
     Image m_BG;
@@ -14,23 +12,37 @@ public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
     [SerializeField]
     Image m_Hint;
     [SerializeField]
+    Image m_Select;
+    [SerializeField]
     Sprite[] m_BGSprites;
     [SerializeField]
     Color[] m_ChessColor;
     [SerializeField]
-    Selectable m_Selectable;
+    Button m_Button;
 
     Model.Node mThisNodeData = null;
     Controller.IChessboardNodeListener listener = null;
 
-    public void OnPointerDown(PointerEventData eventData)
+    void Start()
     {
-        listener?.OnClickNode(mThisNodeData.Index);
+        m_Button.onClick.AddListener(() => {
+            listener?.OnClickNode(mThisNodeData.Index);
+        });
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+        listener?.OnSelectNode(mThisNodeData.Index);
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        listener?.OnDeselectNode(mThisNodeData.Index);
     }
 
     public void SetInteractable(bool value)
     {
-        m_Selectable.interactable = value;
+        m_Button.interactable = value;
     }
 
     public void SetListener(Controller.IChessboardNodeListener listener)
@@ -49,5 +61,10 @@ public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
     public void ToggleHint(bool enable)
     {
         m_Hint.enabled = enable;
+    }
+
+    public void ToggleSelect(bool value)
+    {
+        m_Select.enabled = value;
     }
 }

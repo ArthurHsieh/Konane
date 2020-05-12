@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace View
 {
@@ -11,5 +9,9 @@ namespace View
         void SetNodeInteractable(List<int> interactableNodes);
 
         void SetNodeHint(List<int> hintNodes);
+
+        void SetNodeSelect(int index);
+
+        void ClearSelect();
     }
 }
