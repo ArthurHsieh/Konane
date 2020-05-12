@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Controller;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,6 +54,22 @@ public class ChessboardView : MonoBehaviour, IChessboardView
             var node = Instantiate(m_ChessboardNodeView, m_Root.transform);
             node.name = m_ChessboardNodeView.name + mNodes.Count;
             mNodes.Add(node);
+        }
+    }
+
+    public void SetNodeInteractable(List<int> interactableNodes)
+    {
+        for(int i = 0; i < mNodes.Count; ++i)
+        {
+            mNodes[i].SetInteractable(interactableNodes != null ? interactableNodes.Contains(i) : false);
+        }
+    }
+
+    public void SetNodeHint(List<int> hintNodes)
+    {
+        for (int i = 0; i < mNodes.Count; ++i)
+        {
+            mNodes[i].ToggleHint(hintNodes != null ? hintNodes.Contains(i) : false);
         }
     }
 }

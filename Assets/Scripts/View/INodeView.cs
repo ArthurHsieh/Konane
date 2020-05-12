@@ -11,5 +11,7 @@ namespace View
         void SetNode(Model.Node data);
 
         void ToggleHint(bool enable);
+
+        void SetInteractable(bool value);
     }
 }

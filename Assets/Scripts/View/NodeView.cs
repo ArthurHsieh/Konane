@@ -17,6 +17,8 @@ public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
     Sprite[] m_BGSprites;
     [SerializeField]
     Color[] m_ChessColor;
+    [SerializeField]
+    Selectable m_Selectable;
 
     Model.Node mThisNodeData = null;
     Controller.IChessboardNodeListener listener = null;
@@ -24,6 +26,11 @@ public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         listener?.OnClickNode(mThisNodeData.Index);
+    }
+
+    public void SetInteractable(bool value)
+    {
+        m_Selectable.interactable = value;
     }
 
     public void SetListener(Controller.IChessboardNodeListener listener)
@@ -34,9 +41,9 @@ public class NodeView : MonoBehaviour, INodeView, IPointerDownHandler
     public void SetNode(Model.Node data)
     {
         mThisNodeData = data;
-        m_BG.sprite = mThisNodeData.IsWhite ? m_BGSprites[0] : m_BGSprites[1];
-        m_Chess.color = mThisNodeData.IsWhite ? m_ChessColor[0] : m_ChessColor[1];
-        m_BG.enabled = !data.IsVacancy;
+        m_BG.sprite = mThisNodeData.IsWhite ? m_BGSprites[1] : m_BGSprites[0];
+        m_Chess.color = mThisNodeData.IsWhite ? m_ChessColor[1] : m_ChessColor[0];
+        m_Chess.enabled = !data.IsVacancy;
     }
 
     public void ToggleHint(bool enable)
