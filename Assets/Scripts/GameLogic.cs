@@ -17,10 +17,12 @@ namespace Controller
         End,
     }
 
-    public class GameLogic : MonoBehaviour, IChessboardNodeListener
+    public class GameLogic : MonoBehaviour, IChessboardNodeListener, IMenuListener
     {
         [SerializeField]
         ChessboardView m_ChessboardView;
+        [SerializeField]
+        MenuView m_MenuView;
 
         const int BOARD_SIZE = 8;
         Round mCurrentRound = Round.Black;
@@ -34,7 +36,9 @@ namespace Controller
         // Start is called before the first frame update
         void Start()
         {
-            GameStart();
+            PrepareChessboard();
+            m_MenuView.CloseGameOver();
+            m_MenuView.ShowMenu(this);
         }
 
         public void OnClickNode(int index)
@@ -292,7 +296,13 @@ namespace Controller
             return true;
         }
 
-        void GameStart()
+        void PrepareChessboard()
+        {
+            mChessboardData = Model.Model.GetChessboard(BOARD_SIZE, true);
+            m_ChessboardView.ShowCheckerboard(mChessboardData, this);
+        }
+
+        public void GameStart()
         {
             mChessboardData = Model.Model.GetChessboard(BOARD_SIZE);
             m_ChessboardView.ShowCheckerboard(mChessboardData, this);
@@ -309,7 +319,19 @@ namespace Controller
 
         void GameOver(Round loser)
         {
-            Debug.LogFormat("GameOver loser: {0}", loser);
+            m_MenuView.ShowGameOver(loser == Round.Black? Round.White: Round.Black);
+        }
+
+        public void OnClickStart()
+        {
+            m_MenuView.CloseMenu();
+            GameStart();
+        }
+
+        public void OnClickGameOver()
+        {
+            m_MenuView.CloseGameOver();
+            m_MenuView.ShowMenu(this);
         }
     }
 }

@@ -6,12 +6,12 @@ namespace Model
 {
     public class Chessboard
     {
-        public Chessboard(int boardSize)
+        public Chessboard(int boardSize, bool isVacancy)
         {
             Nodes = new Node[boardSize * boardSize];
             for (int i = 0; i < Nodes.Length; ++i)
             {
-                Nodes[i] = new Node(i, boardSize);
+                Nodes[i] = new Node(i, boardSize, isVacancy);
             }
             for (int i = 0; i < Nodes.Length; ++i)
             {

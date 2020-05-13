@@ -8,9 +8,9 @@ namespace Model
     {
         static Chessboard mChessboard = null;
 
-        public static Chessboard GetChessboard(int boardSize)
+        public static Chessboard GetChessboard(int boardSize, bool isVacancy = false)
         {
-            mChessboard = new Chessboard(boardSize);
+            mChessboard = new Chessboard(boardSize, isVacancy);
             return mChessboard;
         }
 

@@ -14,12 +14,12 @@ namespace Model
 
     public class Node
     {
-        public Node(int index, int boardSize)
+        public Node(int index, int boardSize, bool isVacancy)
         {
             Index = index;
             X = index % boardSize;
             Y = index / boardSize;
-            IsVacancy = false;
+            IsVacancy = isVacancy;
         }
 
         public int Index { get; }

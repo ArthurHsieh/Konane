@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using View;
 
@@ -21,13 +20,15 @@ public class NodeView : MonoBehaviour, INodeView
     Button m_Button;
 
     Model.Node mThisNodeData = null;
-    Controller.IChessboardNodeListener listener = null;
+    Controller.IChessboardNodeListener mListener = null;
 
     void Start()
     {
         m_Button.onClick.AddListener(() => {
-            listener?.OnClickNode(mThisNodeData.Index);
+            mListener?.OnClickNode(mThisNodeData.Index);
         });
+        ToggleHint(false);
+        ToggleSelect(false);
     }
 
     public void SetInteractable(bool value)
@@ -37,7 +38,7 @@ public class NodeView : MonoBehaviour, INodeView
 
     public void SetListener(Controller.IChessboardNodeListener listener)
     {
-        this.listener = listener;
+        mListener = listener;
     }
 
     public void SetNode(Model.Node data)
