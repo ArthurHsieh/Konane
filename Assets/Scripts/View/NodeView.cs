@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using View;
 
-public class NodeView : MonoBehaviour, INodeView, ISelectHandler, IDeselectHandler
+public class NodeView : MonoBehaviour, INodeView
 {
     [SerializeField]
     Image m_BG;
@@ -28,16 +28,6 @@ public class NodeView : MonoBehaviour, INodeView, ISelectHandler, IDeselectHandl
         m_Button.onClick.AddListener(() => {
             listener?.OnClickNode(mThisNodeData.Index);
         });
-    }
-
-    public void OnSelect(BaseEventData eventData)
-    {
-        listener?.OnSelectNode(mThisNodeData.Index);
-    }
-
-    public void OnDeselect(BaseEventData eventData)
-    {
-        listener?.OnDeselectNode(mThisNodeData.Index);
     }
 
     public void SetInteractable(bool value)

@@ -14,11 +14,16 @@ public class ChessboardView : MonoBehaviour, IChessboardView
 
     List<NodeView> mNodes = new List<NodeView>();
     NodeView mSelectNode = null;
+    int mBoardSize = 0;
 
     public void ShowCheckerboard(Model.Chessboard checkerboardData, Controller.IChessboardNodeListener listener)
     {
-        m_GridLayoutGroup.cellSize = m_Root.rect.size / checkerboardData.BoardSize;
-        m_GridLayoutGroup.constraintCount = checkerboardData.BoardSize;
+        if(mBoardSize != checkerboardData.BoardSize)
+        {
+            mBoardSize = checkerboardData.BoardSize;
+            m_GridLayoutGroup.cellSize = m_Root.rect.size / checkerboardData.BoardSize;
+            m_GridLayoutGroup.constraintCount = checkerboardData.BoardSize;
+        }
 
         var nodesData = checkerboardData.Nodes;
 
@@ -29,18 +34,19 @@ public class ChessboardView : MonoBehaviour, IChessboardView
         {
             if(i < nodesData.Length)
             {
-                mNodes[i].gameObject.SetActive(true);
+                if(!mNodes[i].gameObject.activeSelf)
+                    mNodes[i].gameObject.SetActive(true);
                 mNodes[i].SetNode(nodesData[i]);
                 mNodes[i].SetListener(listener);
             }
             else
             {
-                mNodes[i].gameObject.SetActive(false);
+                if (mNodes[i].gameObject.activeSelf)
+                    mNodes[i].gameObject.SetActive(false);
             }
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         m_ChessboardNodeView.gameObject.SetActive(false);
@@ -48,6 +54,9 @@ public class ChessboardView : MonoBehaviour, IChessboardView
 
     void LoadNodes(int count)
     {
+        if (count == 0)
+            return;
+
         for(int i = 0; i < count; ++i)
         {
             var node = Instantiate(m_ChessboardNodeView, m_Root.transform);

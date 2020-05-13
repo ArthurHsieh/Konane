@@ -19,6 +19,7 @@ namespace Model
             Index = index;
             X = index % boardSize;
             Y = index / boardSize;
+            IsVacancy = false;
         }
 
         public int Index { get; }
@@ -46,7 +47,5 @@ namespace Model
         public Node LeftNode = null;
         public Node UpNode = null;
         public Node DownNode = null;
-
-
     }
 }

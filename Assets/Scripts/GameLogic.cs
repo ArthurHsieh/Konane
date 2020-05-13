@@ -25,7 +25,7 @@ namespace Controller
         const int BOARD_SIZE = 8;
         Round mCurrentRound = Round.Black;
         RoundState mRoundState = RoundState.Opening;
-        Model.Chessboard mChessboardData = null;
+        Chessboard mChessboardData = null;
         List<int> mCurrentVacancyBlackNodes = new List<int>();
         List<int> mCurrentVacancyWhiteNodes = new List<int>();
         List<int> mActableNodes = new List<int>();
@@ -34,10 +34,7 @@ namespace Controller
         // Start is called before the first frame update
         void Start()
         {
-            mChessboardData = Model.Model.GetChessboard(BOARD_SIZE);
-            m_ChessboardView.ShowCheckerboard(mChessboardData, this);
-
-            CheckRoundAndState();
+            GameStart();
         }
 
         public void OnClickNode(int index)
@@ -46,52 +43,54 @@ namespace Controller
             switch (mRoundState)
             {
                 case RoundState.Opening:
-                    mChessboardData.Nodes[index].IsVacancy = true;
-                    m_ChessboardView.ShowCheckerboard(mChessboardData, this);
-                    if (mChessboardData.Nodes[index].IsWhite)
-                        mCurrentVacancyWhiteNodes.Add(index);
-                    else
-                        mCurrentVacancyBlackNodes.Add(index);
-                    if (mCurrentRound == Round.Black)
-                    {
-                        mCurrentRound = Round.White;
-                    }
-                    else
-                    {
-                        mCurrentRound = Round.Black;
-                        mRoundState = RoundState.Battle;
-                    }
-
-                    CheckRoundAndState();
+                    OnClickWhenOpening(index);
                     break;
                 case RoundState.Battle:
-                    CheckSelectAndHint(index);
+                    OnClickWhenBattle(index);
                     break;
             }
         }
 
-        public void OnSelectNode(int index)
+        void OnClickWhenOpening(int index)
         {
-           // Debug.LogFormat("OnSelectNode index: {0}", index);
+            mChessboardData.Nodes[index].IsVacancy = true;
+            m_ChessboardView.ShowCheckerboard(mChessboardData, this);
+            if (mChessboardData.Nodes[index].IsWhite)
+                mCurrentVacancyWhiteNodes.Add(index);
+            else
+                mCurrentVacancyBlackNodes.Add(index);
+            if (mCurrentRound == Round.Black)
+            {
+                mCurrentRound = Round.White;
+            }
+            else
+            {
+                mCurrentRound = Round.Black;
+                mRoundState = RoundState.Battle;
+            }
+            CheckRoundAndState();
         }
 
-        public void OnDeselectNode(int index)
-        {
-            //Debug.LogFormat("OnDeselectNode index: {0}", index);
-        }
-
-        void CheckSelectAndHint(int index)
+        void OnClickWhenBattle(int index)
         {
             if(mActableNodes.Contains(index))
             {
                 EatChess(mSelectNodeIndex, index);
                 m_ChessboardView.ClearSelect();
+                m_ChessboardView.SetNodeHint(null);
 
                 if (mCurrentRound == Round.Black)
                     mCurrentRound = Round.White;
                 else
                     mCurrentRound = Round.Black;
-                CheckRoundAndState();
+
+                if (IsGameEnd())
+                {
+                    GameOver(mCurrentRound);
+                }else
+                {
+                    CheckRoundAndState();
+                }
             }
             else
             {
@@ -136,8 +135,18 @@ namespace Controller
             //Debug.LogFormat("chessBeEaten: {0}", string.Join(", ", chessBeEaten));
 
             for (int i = 0; i < chessBeEaten.Count; ++i)
+            {
                 mChessboardData.Nodes[chessBeEaten[i]].IsVacancy = true;
+                if (mChessboardData.Nodes[chessBeEaten[i]].IsWhite)
+                    mCurrentVacancyWhiteNodes.Add(chessBeEaten[i]);
+                else
+                    mCurrentVacancyBlackNodes.Add(chessBeEaten[i]);
+            }
             mChessboardData.Nodes[to].IsVacancy = false;
+            if (mChessboardData.Nodes[to].IsWhite)
+                mCurrentVacancyWhiteNodes.Remove(to);
+            else
+                mCurrentVacancyBlackNodes.Remove(to);
 
             m_ChessboardView.ShowCheckerboard(mChessboardData, this);
         }
@@ -145,16 +154,20 @@ namespace Controller
         List<int> GetHintNodes(int select)
         {
             var node = mChessboardData.Nodes[select];
-            var flag = node.NeighborFlags;
             List<int> hintNodes = new List<int>();
-            if (flag.HasFlag(NeighborFlags.Right))
-                hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Right));
-            if (flag.HasFlag(NeighborFlags.Left))
-                hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Left));
-            if (flag.HasFlag(NeighborFlags.Up))
-                hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Up));
-            if (flag.HasFlag(NeighborFlags.Down))
-                hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Down));
+
+            if(!node.IsVacancy)
+            {
+                var flag = node.NeighborFlags;
+                if (flag.HasFlag(NeighborFlags.Right))
+                    hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Right));
+                if (flag.HasFlag(NeighborFlags.Left))
+                    hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Left));
+                if (flag.HasFlag(NeighborFlags.Up))
+                    hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Up));
+                if (flag.HasFlag(NeighborFlags.Down))
+                    hintNodes.AddRange(GetAvailablePath(node, NeighborFlags.Down));
+            }
 
             return hintNodes;
         }
@@ -235,27 +248,68 @@ namespace Controller
                     m_ChessboardView.SetNodeHint(null);
                     m_ChessboardView.SetNodeInteractable(selectableNodes);
                     break;
-                case RoundState.End:
-                    break;
             }
         }
 
-        void CheckBattleState()
+        bool IsGameEnd()
         {
-            if (mRoundState != RoundState.Battle)
-                return;
-
-            List<int> thisRoundVacancyNode = mCurrentRound == Round.Black ? mCurrentVacancyBlackNodes : mCurrentVacancyWhiteNodes;
-
-            for(int i = 0; i < thisRoundVacancyNode.Count; ++i)
+            switch(mRoundState)
             {
-                var node = Model.Model.GetNode(thisRoundVacancyNode[i]);
-                if(node.NeighborFlags != NeighborFlags.None)
-                {
-
-                }
+                case RoundState.Battle:
+                    List<int> thisRoundVacancyNode = mCurrentRound == Round.Black ? mCurrentVacancyBlackNodes : mCurrentVacancyWhiteNodes;
+                    bool gameEnd = true;
+                    for (int i = 0; i < thisRoundVacancyNode.Count; ++i)
+                    {
+                        var node = mChessboardData.Nodes[thisRoundVacancyNode[i]];
+                        if (node.NeighborFlags != NeighborFlags.None)
+                        {
+                            if (node.NeighborFlags.HasFlag(NeighborFlags.Down) && node.DownNode.NeighborFlags.HasFlag(NeighborFlags.Down))
+                            {
+                                gameEnd = false;
+                                break;
+                            }
+                            if (node.NeighborFlags.HasFlag(NeighborFlags.Up) && node.UpNode.NeighborFlags.HasFlag(NeighborFlags.Up))
+                            {
+                                gameEnd = false;
+                                break;
+                            }
+                            if (node.NeighborFlags.HasFlag(NeighborFlags.Right) && node.RightNode.NeighborFlags.HasFlag(NeighborFlags.Right))
+                            {
+                                gameEnd = false;
+                                break;
+                            }
+                            if (node.NeighborFlags.HasFlag(NeighborFlags.Left) && node.LeftNode.NeighborFlags.HasFlag(NeighborFlags.Left))
+                            {
+                                gameEnd = false;
+                                break;
+                            }
+                        }
+                    }
+                    return gameEnd;
+                case RoundState.Opening:
+                    return false;
             }
+            return true;
         }
 
+        void GameStart()
+        {
+            mChessboardData = Model.Model.GetChessboard(BOARD_SIZE);
+            m_ChessboardView.ShowCheckerboard(mChessboardData, this);
+            mCurrentRound = Round.Black;
+            mRoundState = RoundState.Opening;
+
+            mCurrentVacancyBlackNodes.Clear();
+            mCurrentVacancyWhiteNodes.Clear();
+            mActableNodes.Clear();
+            mSelectNodeIndex = -1;
+
+            CheckRoundAndState();
+        }
+
+        void GameOver(Round loser)
+        {
+            Debug.LogFormat("GameOver loser: {0}", loser);
+        }
     }
 }

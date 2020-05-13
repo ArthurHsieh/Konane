@@ -7,7 +7,5 @@ namespace Controller
     public interface IChessboardNodeListener
     {
         void OnClickNode(int index);
-        void OnSelectNode(int index);
-        void OnDeselectNode(int index);
     }
 }
