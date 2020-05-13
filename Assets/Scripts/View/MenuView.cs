@@ -17,6 +17,16 @@ public class MenuView : MonoBehaviour, IMenuView
     Button m_GameOverButton;
     [SerializeField]
     Text m_GameOverText;
+    [SerializeField]
+    RectTransform m_ChessRoot;
+    [SerializeField]
+    Image m_BG;
+    [SerializeField]
+    Image m_Chess;
+    [SerializeField]
+    Sprite[] m_BGSprites;
+    [SerializeField]
+    Color[] m_ChessColor;
 
     IMenuListener mListener = null;
 
@@ -42,6 +52,18 @@ public class MenuView : MonoBehaviour, IMenuView
         m_GameOverRoot.gameObject.SetActive(false);
     }
 
+    public void ShowCurrentRound(Round currentRound)
+    {
+        m_ChessRoot.gameObject.SetActive(true);
+        m_BG.sprite = currentRound == Round.White ? m_BGSprites[1] : m_BGSprites[0];
+        m_Chess.color = currentRound == Round.White ? m_ChessColor[1] : m_ChessColor[0];
+    }
+
+    public void CloseCurrentRound()
+    {
+        m_ChessRoot.gameObject.SetActive(false);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -51,11 +73,5 @@ public class MenuView : MonoBehaviour, IMenuView
         m_GameOverButton.onClick.AddListener(() => {
             mListener?.OnClickGameOver();
         });
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -37,6 +37,7 @@ namespace Controller
         void Start()
         {
             PrepareChessboard();
+            m_MenuView.CloseCurrentRound();
             m_MenuView.CloseGameOver();
             m_MenuView.ShowMenu(this);
         }
@@ -253,6 +254,7 @@ namespace Controller
                     m_ChessboardView.SetNodeInteractable(selectableNodes);
                     break;
             }
+            m_MenuView.ShowCurrentRound(mCurrentRound);
         }
 
         bool IsGameEnd()
@@ -319,6 +321,7 @@ namespace Controller
 
         void GameOver(Round loser)
         {
+            m_MenuView.CloseCurrentRound();
             m_MenuView.ShowGameOver(loser == Round.Black? Round.White: Round.Black);
         }
 

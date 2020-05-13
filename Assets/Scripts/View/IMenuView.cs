@@ -15,5 +15,9 @@ namespace View
         void ShowGameOver(Round winner);
 
         void CloseGameOver();
+
+        void ShowCurrentRound(Round currentRound);
+
+        void CloseCurrentRound();
     }
 }
